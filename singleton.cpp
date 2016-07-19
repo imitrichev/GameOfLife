@@ -20,7 +20,13 @@ protected:
     Singleton(const Singleton&);
     Singleton& operator=(const Singleton&);
 public:
-    virtual U applyRule(const vector<U*> & objects) = 0;
+    //pattern "Template method"
+    U returnNewState(const vector<U*> & objects)
+    {
+        int alive_count=countAlive(objects);
+        applyRule(objects,alive_count);
+    }
+    virtual U applyRule(const vector<U*> & objects, int alive_count) = 0;
     virtual int countAlive(const vector<U*> & objects) = 0;
 };
 
@@ -28,9 +34,8 @@ class ChildBoolSingleton : public Singleton<ChildBoolSingleton,bool>
 {
 public:
     // The rule: two "true" values in objects vector -> applyRule gives "true"
-    virtual bool applyRule(const vector<bool*> & objects)
+    virtual bool applyRule(const vector<bool*> & objects, int alive_count)
     {
-	int alive_count = countAlive(objects);
         if (alive_count == 2)
 	    return true;
 	return false;
@@ -52,13 +57,13 @@ class Rule3BoolSingleton : public Singleton<Rule3BoolSingleton,bool>
 {
 public:
     // The rule: three "true" values in objects vector -> applyRule gives "true"
-    virtual bool applyRule(const vector<bool*> & objects)
+    virtual bool applyRule(const vector<bool*> & objects, int alive_count)
     {
-	int alive_count = countAlive(objects);
         if (alive_count == 3)
 	    return true;
 	return false;
     }
+
     virtual int countAlive(const vector<bool*> & objects)
     {
 	int count=0;
@@ -83,15 +88,15 @@ int main()
 
         // two "true" values in vec -> applyRule gives "true"
         std::cout<< \
-        ChildBoolSingleton::GetSingletonInstance().applyRule(vec)<<"\n";
+        ChildBoolSingleton::GetSingletonInstance().returnNewState(vec)<<"\n";
 
         vec.push_back(new bool(true));
         // two "true" values in vec -> applyRule gives "false"
         std::cout<< \
-        ChildBoolSingleton::GetSingletonInstance().applyRule(vec)<<"\n";
+        ChildBoolSingleton::GetSingletonInstance().returnNewState(vec)<<"\n";
 
         std::cout<< \
-        Rule3BoolSingleton::GetSingletonInstance().applyRule(vec)<<"\n";
+        Rule3BoolSingleton::GetSingletonInstance().returnNewState(vec)<<"\n";
 
 	//delete pointer contents
 	for (int i=0; i<vec.size(); i++)
